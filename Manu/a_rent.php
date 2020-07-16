@@ -12,7 +12,9 @@ if ($_POST) {
        
        echo  "<p>Successfully Updated</p>";
        echo  "<p>Congratulations: the car with ID =". $id . " is yours!</p>";
-       echo "<a href='rent.php?car_id=" .$id."'><button type='button'>Back</button></a>";
+
+       // <a href='rent.php?id=" .$row['id']."'><button class='btn btn-dark' type='button'>Rent</button></a>
+       // echo "<a href='rent.php?id='. $id .'><button type='button'>Back</button></a>";
 
        echo  "<a href='home.php'><button type='button'>Home</button></a>";
    } else {

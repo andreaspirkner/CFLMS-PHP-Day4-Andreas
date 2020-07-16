@@ -7,8 +7,8 @@ if ($_GET ['id']) {
 
    //step 1: get ALL DATA of car with $id = id
 
-  $sql = "SELECT * FROM cars WHERE id = {$id}";
-   $result = $conn->query($sql);
+  $sql = "SELECT * FROM cars WHERE id = $id";
+  $result = $conn->query($sql);
 
    while($row = mysqli_fetch_assoc($result)) {
             $availability =  $row["availability"];
@@ -18,21 +18,6 @@ if ($_GET ['id']) {
             $year = $row["year"];
             $location = $row["location"];
     }
-             // echo "avaialability after step1:" . $available;
-
-    
-   //  //step 2: decrement §available
-   //  $available--;
-
-   //       echo "avaialability after decrement:" . $available;
-  
-   // //step 3: update new availability of car with $id = id
-   // $sql = "UPDATE cars SET availability = $available WHERE id = $id" ;
-   
-   // $result = $conn->query($sql);
-
-
-   // $conn->close();
          
 ?>
 
@@ -76,7 +61,7 @@ if ($_GET ['id']) {
   
   
 
-<div class="parallax_section1 parallax_image">
+<div class="parallax_section1 parallax_image">C:\xampp2\htdocs\codefactory\day3\crud_caruniverse\update.php
 </div><!--END PARALLAX-->
 
  <div class="parallax_section2 parallax_image">
