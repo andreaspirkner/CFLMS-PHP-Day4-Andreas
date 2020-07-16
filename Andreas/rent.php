@@ -5,20 +5,15 @@ require_once 'dbconnect.php';
 if ($_GET ['id']) {
    $id = $_GET['id'];
 
-   //step 1: get ALL DATA of car with $id = id
+   $availabilty = "SELECT availability FROM cars WHERE id=$id";
+   $result1 = $conn->query($availability);
+  
+   $sql = "UPDATE cars SET availability = ($result1) WHERE id = $id" ;
+   
+   $result = $conn->query($sql);
+   $data = $result->fetch_assoc();
 
-  $sql = "SELECT * FROM cars WHERE id = $id";
-  $result = $conn->query($sql);
-
-   while($row = mysqli_fetch_assoc($result)) {
-            $availability =  $row["availability"];
-            $brand =  $row["brand"];
-            $price =  $row["price"];
-            $picture =  $row["picture"];
-            $year = $row["year"];
-            $location = $row["location"];
-    }
-         
+   $conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -64,31 +59,23 @@ if ($_GET ['id']) {
 <div class="parallax_section1 parallax_image">
 </div><!--END PARALLAX-->
 
- <div class="parallax_section2 parallax_image">
+
+<div class="parallax_section2 parallax_image">
   <div class="row">
             <!--CARS-->
             
-         <div class='card border-dark' >
+            <div class='card border-dark'>
                 <h3>Do you really want to rent this car?</h3>
-                  <hr>
-                  <form action ="a_rent.php" method="post">
-                    <div class='card-body'>
-                        <img class='card-img-top border border-dark' src="<?php echo $picture?>" alt='Card image cap'>
-                                <hr>
-                                <h6 class='card-text'>Brand:</h6><p><?php echo $brand ?></p>
-                                <h6 class='card-text'>Location:</h6><p><?php echo $location?></p>
-                                <h6 class='card-text'>Availability:</h6><p><?php echo $availability?></p>
-                                <h6 class='card-text'>Price:</h6><p><span>€ </span><?php echo $price ?></p>
-                                <hr>
-                                <input type="hidden" name= "id" value="<?php echo $id ?>" />
-                        <button class='btn btn-success border border-dark' type="submit">Yes, bring it on!</button >
-                        <a href= "home.php"><button class='btn btn-danger border border-dark' type="button">No, keep it</button ></a>
-                                
-                    </div><!--END BODY-->
-                  </form>
+                    <form action ="actions/a_rent.php" method="post">
+
+                        <input type="hidden" name= "availability" value="<?php echo $data['availability'] ?>" />
+                        <button class='btn btn-successs' type="submit">Yes, bring it on!</button >
+                        <a href="home.php"><button class='btn btn-danger' type="button">No, keep it!</button ></a>
+                        </form>
             </div><!--END CARS-->
-    </div> 
-</div><!--END PARALLAX -->
+            
+    </div><!--END ROW-->
+</div><!--END PARALLAX 2-->
 
 <div class="parallax_section1 parallax_image">
 </div><!--END PARALLAX-->

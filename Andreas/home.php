@@ -1,24 +1,17 @@
-<?php 
 
+<?php
+ob_start();
+session_start();
 require_once 'dbconnect.php';
 
-if ($_GET ['id']) {
-   $id = $_GET['id'];
-
-   //step 1: get ALL DATA of car with $id = id
-
-  $sql = "SELECT * FROM cars WHERE id = $id";
-  $result = $conn->query($sql);
-
-   while($row = mysqli_fetch_assoc($result)) {
-            $availability =  $row["availability"];
-            $brand =  $row["brand"];
-            $price =  $row["price"];
-            $picture =  $row["picture"];
-            $year = $row["year"];
-            $location = $row["location"];
-    }
-         
+// if session is not set this will redirect to login page
+if( !isset($_SESSION['user' ]) ) {
+ header("Location: index.php");
+ exit;
+}
+// select logged-in users details 
+$res=mysqli_query($conn, "SELECT * FROM users WHERE userId=".$_SESSION['user']);
+$userRow=mysqli_fetch_array($res, MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +24,7 @@ if ($_GET ['id']) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <title>Rent</title>
+    <title>Welcome - <?php echo $userRow['userEmail' ]; ?></title>
 </head>
 <body>
     
@@ -58,37 +51,68 @@ if ($_GET ['id']) {
     <a class="btn btn-danger border border-white" href="logout.php?logout">Logout</a>
     </nav><!--END NAV-->
     
+   
+    
+    
+    <div class="parallax_section1 parallax_image">
+    </div><!--END PARALLAX-->
+        
+
+    
+<div class="parallax_section2 parallax_image">
+  <div class="row">
+            <!--HOME-->
+        <div class="card border-dark">
+           
+           <h2> Hi <?php echo $userRow['userName' ]; ?> ! Choose your car.</h2>
+      
+        </div><!--END HOME-->
+        
+        <!---->
+        <!--<div class="card border-dark">
+      
+        </div><!--END-->
+    </div><!--END ROW-->
+</div><!--END PARALLAX 2-->
+
+
   
   
 
 <div class="parallax_section1 parallax_image">
 </div><!--END PARALLAX-->
 
- <div class="parallax_section2 parallax_image">
+
+<div class="parallax_section2 parallax_image">
   <div class="row">
             <!--CARS-->
-            
-         <div class='card border-dark' >
-                <h3>Do you really want to rent this car?</h3>
-                  <hr>
-                  <form action ="a_rent.php" method="post">
-                    <div class='card-body'>
-                        <img class='card-img-top border border-dark' src="<?php echo $picture?>" alt='Card image cap'>
+            <?php
+                    $sql = "SELECT * FROM cars WHERE active = 0";
+                    $result = $conn->query($sql);
+
+                    if($result->num_rows > 0) {
+                        while($row = $result->fetch_assoc()) {
+                      echo
+            "<div class='card border-dark'>
+                <div class='card-body'>
+                   <img class='card-img-top border border-dark' src=".$row['picture']." alt='Card image cap'>
                                 <hr>
-                                <h6 class='card-text'>Brand:</h6><p><?php echo $brand ?></p>
-                                <h6 class='card-text'>Location:</h6><p><?php echo $location?></p>
-                                <h6 class='card-text'>Availability:</h6><p><?php echo $availability?></p>
-                                <h6 class='card-text'>Price:</h6><p><span>€ </span><?php echo $price ?></p>
+                                <h6 class='card-text'>Brand:</h6><p>" .$row['brand']." ".$row['model' ]."</p>
+                                <h6 class='card-text'>Location:</h6><p>" .$row['location']."</p>
+                                <h6 class='card-text'>Availability:</h6><p>" .$row['availability']."</p>
+                                <h6 class='card-text'>Price:</h6><p><span>€ </span>" .$row['price']."</p>
                                 <hr>
-                                <input type="hidden" name= "id" value="<?php echo $id ?>" />
-                        <button class='btn btn-success border border-dark' type="submit">Yes, bring it on!</button >
-                        <a href= "home.php"><button class='btn btn-danger border border-dark' type="button">No, keep it</button ></a>
                                 
-                    </div><!--END BODY-->
-                  </form>
-            </div><!--END CARS-->
-    </div> 
-</div><!--END PARALLAX -->
+                                <a href='rent.php?id=" .$row['id']."'><button class='btn btn-dark' type='button'>Rent</button></a>
+                </div><!--END BODY-->
+            </div><!--END CARS-->";
+            }
+                     } else  {
+                    echo  "<tr><td colspan='5'><center>No Data Avaliable</center></td></tr>";
+                    }
+                    ?>
+    </div><!--END ROW-->
+</div><!--END PARALLAX 2-->
 
 <div class="parallax_section1 parallax_image">
 </div><!--END PARALLAX-->
@@ -136,6 +160,5 @@ if ($_GET ['id']) {
 </body>
 </html>
 
-<?php
-}
+<?php ob_end_flush();
 ?>

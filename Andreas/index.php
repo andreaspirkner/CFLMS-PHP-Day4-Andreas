@@ -1,24 +1,60 @@
-<?php 
-
+<?php
+ob_start();
+session_start();
 require_once 'dbconnect.php';
 
-if ($_GET ['id']) {
-   $id = $_GET['id'];
+// it will never let you open index(login) page if session is set
+if ( isset($_SESSION['user' ])!="" ) {
+ header("Location: home.php");
+ exit;
+}
 
-   //step 1: get ALL DATA of car with $id = id
+$error = false;
 
-  $sql = "SELECT * FROM cars WHERE id = $id";
-  $result = $conn->query($sql);
+if( isset($_POST['btn-login']) ) {
 
-   while($row = mysqli_fetch_assoc($result)) {
-            $availability =  $row["availability"];
-            $brand =  $row["brand"];
-            $price =  $row["price"];
-            $picture =  $row["picture"];
-            $year = $row["year"];
-            $location = $row["location"];
-    }
-         
+  // prevent sql injections/ clear user invalid inputs
+ $email = trim($_POST['email']);
+ $email = strip_tags($email);
+ $email = htmlspecialchars($email);
+
+ $pass = trim($_POST[ 'pass']);
+ $pass = strip_tags($pass);
+ $pass = htmlspecialchars($pass);
+ // prevent sql injections / clear user invalid inputs 
+
+ if(empty($email)){
+  $error = true;
+  $emailError = "Please enter your email address.";
+ } else if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
+  $error = true;
+  $emailError = "Please enter valid email address.";
+ }
+
+ if (empty($pass)){
+  $error = true;
+  $passError = "Please enter your password." ;
+ }
+
+ // if there's no error, continue to login
+ if (!$error) {
+  
+  $password = hash( 'sha256', $pass); // password hashing
+
+  $res=mysqli_query($conn, "SELECT userId, userName, userPass FROM users WHERE userEmail='$email'" );
+  $row=mysqli_fetch_array($res, MYSQLI_ASSOC);
+  $count = mysqli_num_rows($res); // if uname/pass is correct it returns must be 1 row 
+  
+  if( $count == 1 && $row['userPass' ]==$password ) {
+   $_SESSION['user'] = $row['userId'];
+   header( "Location: home.php");
+  } else {
+   $errMSG = "Incorrect Credentials, Try again..." ;
+  }
+  
+ }
+
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +67,7 @@ if ($_GET ['id']) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <title>Rent</title>
+    <title>Login & Registration System</title>
 </head>
 <body>
     
@@ -50,55 +86,78 @@ if ($_GET ['id']) {
         <li class="nav-item">
             <a class="nav-link" href="">Follows</a>
         </li>
-         <li class="nav item">
+         <li class="nav-item">
             <a class="nav-link" href="">Follows</a>
-         </li>
+        </li>
         </ul>
     </div>
-    <a class="btn btn-danger border border-white" href="logout.php?logout">Logout</a>
     </nav><!--END NAV-->
     
-  
-  
+   
+    
+    
+    <div class="parallax_section1 parallax_image">
+    </div><!--END PARALLAX-->
+    
+    
 
-<div class="parallax_section1 parallax_image">
-</div><!--END PARALLAX-->
-
- <div class="parallax_section2 parallax_image">
+    
+<div class="parallax_section2 parallax_image">
   <div class="row">
-            <!--CARS-->
+            <!--LOGIN-->
+        <div class="card border-dark">
+           
+           <form method="post"  action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" autocomplete= "off">
+                <h2>Sign In</h2 >
+                <hr/>
             
-         <div class='card border-dark' >
-                <h3>Do you really want to rent this car?</h3>
-                  <hr>
-                  <form action ="a_rent.php" method="post">
-                    <div class='card-body'>
-                        <img class='card-img-top border border-dark' src="<?php echo $picture?>" alt='Card image cap'>
-                                <hr>
-                                <h6 class='card-text'>Brand:</h6><p><?php echo $brand ?></p>
-                                <h6 class='card-text'>Location:</h6><p><?php echo $location?></p>
-                                <h6 class='card-text'>Availability:</h6><p><?php echo $availability?></p>
-                                <h6 class='card-text'>Price:</h6><p><span>€ </span><?php echo $price ?></p>
-                                <hr>
-                                <input type="hidden" name= "id" value="<?php echo $id ?>" />
-                        <button class='btn btn-success border border-dark' type="submit">Yes, bring it on!</button >
-                        <a href= "home.php"><button class='btn btn-danger border border-dark' type="button">No, keep it</button ></a>
-                                
-                    </div><!--END BODY-->
-                  </form>
-            </div><!--END CARS-->
-    </div> 
-</div><!--END PARALLAX -->
+                        <?php
+                        if ( isset($errMSG) ) {
+                        echo  $errMSG; ?>   
+                        <?php
+                        }
+                        ?>
+           
+          
+            
+                    <input type="email" name="email" class="form-control" placeholder= "Your Email" value="<?php echo $email; ?>"  maxlength="40"/>
+        
+                        <span class="text-danger"><?php  echo $emailError; ?></span >
+  
+          
+                    <input type="password" name="pass"  class="form-control" placeholder ="Your Password" maxlength="15"/>
+        
+                        <span class="text-danger"><?php  echo $passError; ?></span>
+                        <hr/>
+                        <button  class='btn btn-dark' type="submit" name= "btn-login">Sign In</button>
+                        <hr/>
+  
+                        <a href="register.php">Sign Up Here...</a>
+            </form>
+      
+        </div><!--END LOGIN-->
+        
+        <!---->
+        <!--<div class="card border-dark">
+      
+        </div><!--END-->
+    </div><!--END ROW-->
+</div><!--END PARALLAX 2-->
 
+
+  
+  
 <div class="parallax_section1 parallax_image">
 </div><!--END PARALLAX-->
 
 
   
+    
+    
+ 
+
+
   
-
-
-
     
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -136,6 +195,5 @@ if ($_GET ['id']) {
 </body>
 </html>
 
-<?php
-}
+<?php ob_end_flush();
 ?>
