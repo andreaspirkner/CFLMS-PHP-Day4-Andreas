@@ -7,7 +7,7 @@ if ($_GET ['id']) {
 
    $availabilty = "SELECT availability FROM cars WHERE id=$id";
    $result1 = $conn->query($availability);
-   echo $result1;
+  
    $sql = "UPDATE cars SET availability = ($result1) WHERE id = $id" ;
    
    $result = $conn->query($sql);
@@ -66,7 +66,7 @@ if ($_GET ['id']) {
             
             <div class='card border-dark'>
                 <h3>Do you really want to rent this car?</h3>
-                    <form action ="actions/a_decrement.php" method="post">
+                    <form action ="actions/a_rent.php" method="post">
 
                         <input type="hidden" name= "availability" value="<?php echo $data['availability'] ?>" />
                         <button class='btn btn-successs' type="submit">Yes, bring it on!</button >
